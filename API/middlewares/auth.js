@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 exports.verifyToken = async (req, res, next) => {
   const headers = req.headers;
-  if (!headers.hasOwnProperty('aythorization')) {
+  if (!headers.hasOwnProperty('authorization')) {
     return res.status(200).json({
       status : 403,
       success : false,
@@ -19,28 +19,32 @@ exports.verifyToken = async (req, res, next) => {
   }
   // 토큰이 유효한지 검증
 
-  let info = {
-    type : false,
-    messahe : ''
-  }
 
-  const p = new Promise((resolve, reject) => {
+console.log('1');
+  const jwtToken = new Promise((resolve, reject) => {
     jwt.verify(token, 'jwt-secret-key', (err, decoded) => {
       if (err) { //토큰이 일치하지 않음.
+
+        const info = {
+          type : false,
+          message : ''
+        }
+
         console.error(err)
         info.type = false;
         info.message = '토큰이 일치하지 않습니다.';
-        return res.status(200).send({
+        return res.status(403).send({
           status : 403,
           success : false,
-          info : info
+          info : `${info}`
         })
       }
+      console.log(info);
       resolve(decoded)
     })
   })
 
-  p.then((decoded) => {
+  jwtToken.then((decoded) => {
     req.decoded = decoded;
     next();
   })
